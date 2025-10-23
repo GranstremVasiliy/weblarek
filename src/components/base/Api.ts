@@ -1,4 +1,5 @@
 type ApiPostMethods = 'POST' | 'PUT' | 'DELETE';
+import { API_URL } from "../../utils/constants";
 
 export class Api {
     readonly baseUrl: string;
@@ -35,3 +36,5 @@ export class Api {
         }).then(this.handleResponse<T>);
     }
 }
+
+export const api = new Api(API_URL);
