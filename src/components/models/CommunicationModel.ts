@@ -8,28 +8,10 @@ export class Communication {
 }
 
 getProducts(): Promise<{ items: IProduct[]; total: number }> {
-  console.log("Выполняется запрос на получение товаров...");
-  return this.api.get<{ items: IProduct[]; total: number }>('/product')
-  .then(response => {   
-    console.log("Ответ от сервера получен.");
-    return response;
-  })
-  .catch((error) => {
-    console.error("Ошибка при получении товаров: ", error);
-    throw error;
-  }); 
+  return this.api.get<{ items: IProduct[]; total: number }>('/product');
 }
 
-sendOrder(
-  customerData: ICustomer,
-  selectedItems: string[],
-  total: number
-): Promise<IOrderResponse> {
-  const orderData: IOrderRequest = {
-    ...customerData,
-    items: selectedItems,
-    total: total,
-  };
-  return this.api.post<IOrderResponse>('/order', orderData, 'POST');
-}
+sendOrder(order: IOrderRequest): Promise<IOrderResponse> {
+  return this.api.post<IOrderResponse>('/order', order, 'POST');
+};
 }

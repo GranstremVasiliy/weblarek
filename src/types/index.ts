@@ -28,5 +28,4 @@ export interface IOrderRequest extends ICustomer {
 export interface IOrderResponse {
   id: string;       // Уникальный идентификатор заказа
   total: number ;   // Общая сумма заказа
-  items: string[];  // Массив идентификаторов товаров, включённых в заказ
 }

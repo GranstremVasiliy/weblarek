@@ -55,3 +55,4 @@ comm.getProducts()
     console.error("Ошибка при получении товаров с сервера: ", error);
   })
 
+ 
