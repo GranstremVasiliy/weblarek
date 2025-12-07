@@ -1,6 +1,6 @@
-import { Component } from "./Component";
+import { Component } from "../base/Component";
 import { ensureElement } from "../../utils/utils";
-import { IEvents } from "./Events";
+import { IEvents } from "../base/Events";
 
 export interface IModal {
   content?: HTMLElement;
@@ -36,20 +36,12 @@ export class Modal extends Component<IModal> {
     this.modalContent.replaceChildren(element); 
   }
 
-  set open(value:boolean) {
-    if (value) {
-      this.handleOpen();
-    } else {
-      this.handleClose()
-    }
-  }
-
-  handleOpen():void {
+  open():void {
     this.modalContainer.classList.add('modal_active')
     this.isOpen = true;
   }
 
-  handleClose():void {
+  close():void {
     this.modalContainer.classList.remove('modal_active');
     this.isOpen = false;
   } 

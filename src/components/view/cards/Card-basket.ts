@@ -1,10 +1,9 @@
 import {Card, ICard} from "./Card";
-import {IEvents} from "../Events";
+import {IEvents} from "../../base/Events"
 import {ensureElement} from "../../../utils/utils";
 
 export interface ICardBasket extends ICard {
   cardIndex: number;
-  
 }
 
 export class CardBasket extends Card {

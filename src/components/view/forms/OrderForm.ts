@@ -1,8 +1,7 @@
 import { Form } from "./Form";
 import { ensureElement } from "../../../utils/utils";
-import { IEvents } from "../Events";
-
-export type PaymentType = 'card' | 'cash' | null;
+import { IEvents } from "../../base/Events"
+import { PaymentType } from "../../../types";
 
 export interface IOrderForm {
   payment: PaymentType
@@ -25,16 +24,24 @@ export class OrderForm extends Form<IOrderForm> {
 
   protected bindHandlers(): void {
     this.cardButton.addEventListener('click', () => {
-            this.events.emit('order:payment-change', { payment: 'card' });
+        this.events.emit('form:change', { 
+        field: 'payment', 
+        value: 'card'      
         });
+    });
+    
     this.cashButton.addEventListener('click', () => {
-            this.events.emit('order:payment-change', { payment: 'cash' });
+        this.events.emit('form:change', { 
+        field: 'payment', 
+        value: 'cash'     
         });
+    });
+    
     this.container.addEventListener('submit', (e: Event) => {
         e.preventDefault();
         this.events.emit('form:order-submit')
-      });
-    }
+    });
+}
 
   set payment(payment: PaymentType) {
     this.cardButton.classList.toggle('button_alt-active', payment === 'card');

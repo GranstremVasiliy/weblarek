@@ -1,5 +1,5 @@
 import { ensureElement} from "../../../utils/utils";
-import { IEvents } from "../Events";
+import { IEvents } from "../../base/Events"
 import { Card, ICard } from "./Card";
 import { categoryMap } from "../../../utils/constants";
 

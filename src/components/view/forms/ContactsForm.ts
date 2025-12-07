@@ -1,6 +1,6 @@
 import { Form } from "./Form";
 import { ensureElement } from "../../../utils/utils";
-import { IEvents } from "../Events";
+import { IEvents } from "../../base/Events";
 
 export interface IContactsForm {
   email: string;

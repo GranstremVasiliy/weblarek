@@ -1,6 +1,6 @@
 import { ensureElement } from "../../utils/utils";
-import { Component } from "./Component";
-import { IEvents } from "./Events";
+import { Component } from ".././base/Component"
+import { IEvents } from ".././base/Events"
 
 interface IHeader {
   counter: number;

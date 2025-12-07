@@ -1,4 +1,12 @@
 export type ApiPostMethods = 'POST' | 'PUT' | 'DELETE';
+export type PaymentType = 'card' | 'cash' | undefined;
+export type FormChangePayload = { 
+    field: keyof ICustomer, 
+    value: string 
+};
+export type CustomerUpdatePayload = { 
+    field?: keyof ICustomer 
+};
 
 export interface IApi {
     get<T extends object>(uri: string): Promise<T>;
@@ -15,10 +23,14 @@ export interface IProduct {
 }
 
 export interface ICustomer {
-  payment: 'card' | 'cash' | null;   // Способ оплаты: банковская карта или наличные
+  payment: 'card' | 'cash' | undefined;   // Способ оплаты: банковская карта или наличные
   address: string;            // Адрес доставки заказа
   email: string;              // Электронная почта покупателя
   phone: string            // Контактный номер телефона покупателя
+}
+
+export interface ICustomerUpdateEveent {
+  field?: keyof ICustomer;  
 }
 
 export interface IOrderRequest extends ICustomer {

@@ -1,6 +1,6 @@
-import { Component } from "../Component";
+import { Component } from "../../base/Component"
 import { ensureElement } from "../../../utils/utils";
-import { IEvents } from "../Events";
+import { IEvents } from "../../base/Events"
 
 export abstract class Form<T> extends Component<T> {
   protected errorContainer: HTMLElement;

@@ -1,6 +1,6 @@
 import { Card, ICard } from "./Card";
 import { ensureElement} from "../../../utils/utils";
-import { IEvents } from "../Events";
+import { IEvents } from "../../base/Events"
 import { categoryMap } from "../../../utils/constants";
 
 export interface ICardPreview extends ICard {
