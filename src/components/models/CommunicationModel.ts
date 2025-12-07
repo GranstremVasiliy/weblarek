@@ -1,4 +1,4 @@
-import { IApi, IProduct, ICustomer, IOrderRequest, IOrderResponse } from '../../types/index.js';
+import { IApi, IProduct, IOrderRequest, IOrderResponse } from '../../types/index.js';
 
 export class Communication {
   private api: IApi;
@@ -11,7 +11,7 @@ getProducts(): Promise<{ items: IProduct[]; total: number }> {
   return this.api.get<{ items: IProduct[]; total: number }>('/product');
 }
 
-sendOrder(order: IOrderRequest): Promise<IOrderResponse> {
+postOrder(order: IOrderRequest): Promise<IOrderResponse> {
   return this.api.post<IOrderResponse>('/order', order, 'POST');
 };
 }

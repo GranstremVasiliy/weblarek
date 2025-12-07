@@ -32,6 +32,6 @@ export const apiProducts = {
             "title": "Фреймворк куки судьбы",
             "category": "дополнительное",
             "price": 2500
-        },
+        }
     ]
 }

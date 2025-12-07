@@ -1,0 +1,37 @@
+import { ensureElement } from "../../utils/utils";
+import { Component } from "./Component";
+import { IEvents } from "./Events";
+
+interface IHeader {
+  counter: number;
+}
+
+export class Header extends Component<IHeader> {
+  protected counterElement: HTMLElement;
+  protected basketButton: HTMLButtonElement;
+
+  constructor(protected events: IEvents, container: HTMLElement) {
+    super(container);
+
+    this.counterElement = ensureElement<HTMLElement>('.header__basket-counter', this.container);
+    this.basketButton = ensureElement<HTMLButtonElement>('.header__basket', this.container);
+
+    this.basketButton.addEventListener('click', () => {
+      this.events.emit('cart:open');
+    });
+  }
+
+  setCounter(value: number) {
+    this.counterElement.textContent = String(value);
+  }
+
+  render(data: Partial<IHeader>): HTMLElement {
+    super.render(data);
+
+    if (data.counter !== undefined) {
+      this.setCounter(data.counter)
+    }
+    return this.container;
+  }
+}
+

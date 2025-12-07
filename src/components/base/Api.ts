@@ -1,6 +1,7 @@
 type ApiPostMethods = 'POST' | 'PUT' | 'DELETE';
 import { API_URL } from "../../utils/constants";
 
+
 export class Api {
     readonly baseUrl: string;
     protected options: RequestInit;
@@ -22,6 +23,7 @@ export class Api {
     }
 
     get<T extends object>(uri: string) {
+
         return fetch(this.baseUrl + uri, {
             ...this.options,
             method: 'GET'

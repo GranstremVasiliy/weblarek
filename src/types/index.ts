@@ -15,7 +15,7 @@ export interface IProduct {
 }
 
 export interface ICustomer {
-  payment: 'card' | 'cash';   // Способ оплаты: банковская карта или наличные
+  payment: 'card' | 'cash' | null;   // Способ оплаты: банковская карта или наличные
   address: string;            // Адрес доставки заказа
   email: string;              // Электронная почта покупателя
   phone: string            // Контактный номер телефона покупателя
