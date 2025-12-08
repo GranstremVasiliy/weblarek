@@ -19,9 +19,11 @@ export class CatalogModel {
     this.selectedItem = item;
     this.events.emit('catalog:item-selected', this.selectedItem);
   };
+  
   getSelectedItem(): IProduct | null {
     return this.selectedItem;
   };
+
   getItemById(id: string): IProduct | undefined {
     return this.items.find(item => item.id === id);
   }

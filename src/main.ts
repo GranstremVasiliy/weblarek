@@ -1,7 +1,6 @@
 import './scss/styles.scss';
 import { CDN_URL } from './utils/constants.js';
 import { cloneTemplate, ensureElement} from './utils/utils.js';
-import { updateFormView } from './utils/formUtil.js';
 import { FormChangePayload, CustomerUpdatePayload } from './types/index.js'
 
 import { CatalogModel } from './components/models/CatalogModel.js';
@@ -35,12 +34,14 @@ const customerModel = new CustomerModel(events);
 const catalogView  = new Catalog(events, catalogContainer);
 const modalView = new Modal (events, ensureElement('.modal'));
 const headerView = new Header (events, ensureElement('.header'));
-const basketView = new Basket (events, cloneTemplate('#basket'))
+const basketView = new Basket (events, cloneTemplate('#basket'));
+const cardPreviewView = new CardPreview(events, cloneTemplate('#card-preview'));
 
 
 const orderFormView = new OrderForm(events, cloneTemplate('#order'));
 const contactsFormView = new ContactsForm(events, cloneTemplate('#contacts'));
-let openedCardPreview: CardPreview | null = null;
+const orderSuccessView = new OrderSuccess(events, cloneTemplate('#success'));
+
 
 comm.getProducts()
   .then(response => {
@@ -52,17 +53,16 @@ comm.getProducts()
   });
 
 events.on('catalog:changed', (items: IProduct[]) => {
-  const cardElements = items.map(item => {
-    const cardContainer = cloneTemplate('#card-catalog');
-    const cardCatalogView = new CardCatalog(events, cardContainer, item.id)
-    const itemRender = {
-      ...item,
-      image:  CDN_URL + item.image
-    }
-    return cardCatalogView.render(itemRender);
-  });
-  catalogView.render({items:cardElements});
-})
+    const cardElements = items.map(item => {
+        const cardContainer = cloneTemplate('#card-catalog');
+        const card = new CardCatalog(events, cardContainer, item.id);
+        return card.render({
+            ...item,
+            image: CDN_URL + item.image
+        });
+    });
+    catalogView.render({ items: cardElements });
+});
 
 events.on('card:select', (data:{id:string}) => {
   const item = catalogModel.getItemById(data.id);
@@ -72,9 +72,7 @@ events.on('card:select', (data:{id:string}) => {
 })
 
 events.on('catalog:item-selected', (item:IProduct) => {
-  const cardContainer = cloneTemplate<HTMLTemplateElement>('#card-preview');
-  const cardPreviewView = new CardPreview(events, cardContainer);
-  openedCardPreview = cardPreviewView;
+  
   const isInCart = cartModel.hasItem(item.id);
   cardPreviewView.render({
     id:item.id,
@@ -85,8 +83,8 @@ events.on('catalog:item-selected', (item:IProduct) => {
     image: CDN_URL+item.image
   })
   cardPreviewView.updateBuyButton(isInCart, item.price??null)
-  modalView.content = cardPreviewView.render();
-  modalView.open()
+  modalView.content = cardPreviewView.render()
+  modalView.open();
 })
 
 events.on('card:toggle', (data:{id:string}) => {
@@ -101,16 +99,14 @@ events.on('card:toggle', (data:{id:string}) => {
 
 events.on('cart:changed', (data: {items:IProduct[], count:number, total:number, changedItemId:string}) => {
    headerView.setCounter(data.count);
+  
    //PreviewCardView:
-    if (modalView.isOpen && openedCardPreview) {
-        if(data.changedItemId && openedCardPreview.idValue !== data.changedItemId) {
-        } else {
-            const selectedItem = catalogModel.getItemById(openedCardPreview.idValue);
-            if (selectedItem && selectedItem.price !== null) {
-                const isInCart = cartModel.hasItem(selectedItem.id);
-                openedCardPreview.updateBuyButton(isInCart, selectedItem.price);
-            }
-        }
+    if (modalView.isOpen && modalView.content === cardPreviewView.render()) {
+      const selectedItem = catalogModel.getSelectedItem();
+      if (selectedItem && selectedItem.price !== null) {
+        const isInCart = cartModel.hasItem(selectedItem.id);
+        cardPreviewView.updateBuyButton(isInCart, selectedItem.price);
+      }
     }
   //BasketCardView:
     const basketItemsElements = data.items.map((item: IProduct, index) => {
@@ -126,16 +122,10 @@ events.on('cart:changed', (data: {items:IProduct[], count:number, total:number, 
         items: basketItemsElements,
         total: data.total
     });
-    if (modalView.isOpen) {
-        if (basketView.returnContainer === modalView.content) { 
-            modalView.content = basketView.render();
-        }
-    }
 });
 
 events.on('modal:close', () => {
   modalView.close();
-  openedCardPreview = null;
 })
 
 events.on('cart:open', () => {
@@ -151,9 +141,23 @@ events.on('card:remove', (data:{id:string}) => {
 })
 
 events.on('basket:submit', () => {
-  modalView.content = orderFormView.returnContainer;
+  modalView.content = orderFormView.render();
   modalView.open();
-  events.emit('customer:updated', {})
+  
+  const customerData = customerModel.getCustomer();
+  const allErrors = customerModel.validate();
+
+  orderFormView.render({
+    payment:customerData.payment,
+    address:customerData.address
+  })
+  
+  const orderFormErrors:Record<string, string> = {};
+  if (allErrors.payment) orderFormErrors.payment = allErrors.payment;
+  if (allErrors.address) orderFormErrors.address = allErrors.address;
+  orderFormView.showErrors(orderFormErrors);
+  const isValid = !allErrors.payment && !allErrors.address;
+  orderFormView.setSubmitEnabled(isValid);
 })
 
 events.on('form:change', (data:FormChangePayload) =>{
@@ -161,26 +165,66 @@ events.on('form:change', (data:FormChangePayload) =>{
 });
 
 events.on('form:order-submit', () => {
-  modalView.content = contactsFormView.returnContainer;
-  modalView.open();
-  events.emit('customer:updated', {})
+  const customerData = customerModel.getCustomer();
+  const allErrors = customerModel.validate();
+
+  const isOrderValid = !allErrors.payment && !allErrors.address;
+
+    if (!isOrderValid) return;
+    
+    modalView.content = contactsFormView.render({
+        email: customerData.email,
+        phone: customerData.phone
+    });
+    modalView.open();
+
+    const contactsFormErrors: Record<string, string> = {};
+    if (allErrors.phone) contactsFormErrors.phone = allErrors.phone;
+    if (allErrors.email) contactsFormErrors.email = allErrors.email
+    contactsFormView.showErrors(contactsFormErrors)
+    
+    
+    const isValid = !allErrors.phone && !allErrors.email;
+    contactsFormView.setSubmitEnabled(isValid);
 })
 
 events.on('customer:updated', (data:CustomerUpdatePayload) => {
   const {field} = data;
   const customerData = customerModel.getCustomer();
   const allErrors = customerModel.validate();
-
-  const orderFields:(keyof ICustomer)[] = ['payment', 'address'];
-  const contactsFields:(keyof ICustomer)[] = ['email','phone'];
-  if(!field||orderFields.includes(field)) {
-    updateFormView(orderFormView, customerData, allErrors, orderFields);
+ // OrderForm
+  const orderFields: (keyof ICustomer)[] = ['payment', 'address'];
+  if (!field || orderFields.includes(field)) {
+      const isValid = !allErrors.payment && !allErrors.address;
+      orderFormView.render({
+          payment: customerData.payment,
+          address: customerData.address
+      });
+      orderFormView.setSubmitEnabled(isValid);
+      
+      const formErrors: Record<string, string> = {};
+      if (allErrors.payment) formErrors.payment = allErrors.payment;
+      if (allErrors.address) formErrors.address = allErrors.address;
+      orderFormView.showErrors(formErrors);
   }
 
-  if(!field || contactsFields.includes(field)) {
-        updateFormView(contactsFormView, customerData, allErrors, contactsFields)
-      }
-    })
+  // ContactsForm
+  const contactsFields: (keyof ICustomer)[] = ['email', 'phone'];
+  if (!field || contactsFields.includes(field)) {
+      const isValid = !allErrors.email && !allErrors.phone;
+      contactsFormView.render({
+          email: customerData.email,
+          phone: customerData.phone
+      });
+      
+      contactsFormView.setSubmitEnabled(isValid);
+      
+      const formErrors: Record<string, string> = {};
+      if (allErrors.email) formErrors.email = allErrors.email;
+      if (allErrors.phone) formErrors.phone = allErrors.phone;
+      contactsFormView.showErrors(formErrors);
+  }
+})
   
   events.on('form:contacts-submit', () => {
     const orderData = customerModel.getCustomer();
@@ -203,14 +247,11 @@ events.on('customer:updated', (data:CustomerUpdatePayload) => {
         cartModel.clear();
         customerModel.clear();
 
-        const successContainer = cloneTemplate('#success')
-        const successView = new OrderSuccess(events, successContainer);
-
-        successView.render({
+        orderSuccessView.render({
           amount: finalOrderData.total
       })
 
-      modalView.content = successView.returnContainer;
+      modalView.content = orderSuccessView.render();
       modalView.open();
     })
     .catch(err => {

@@ -10,12 +10,11 @@ export interface ICardCatalog extends ICard {
   id: string;
 }
 
-
 export class CardCatalog extends Card {
   protected imageElement: HTMLImageElement;
   protected categoryElement: HTMLElement;
 
-
+  
   constructor(protected events: IEvents, container: HTMLElement, id: string){
   
     super(events,container)

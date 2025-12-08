@@ -1,7 +1,6 @@
 import { ICustomer, PaymentType } from "../../types/index";
 import { IEvents } from '../base/Events';
 
-
 export class CustomerModel {
   public payment?: PaymentType
   public address: string = '';

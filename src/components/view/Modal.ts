@@ -12,6 +12,7 @@ export class Modal extends Component<IModal> {
   protected modalContent: HTMLElement;
   protected closeButton: HTMLButtonElement;
   public isOpen: boolean = false;
+  public currentContent: HTMLElement|null =null ;
 
 
   constructor (protected events: IEvents, container: HTMLElement){
@@ -32,9 +33,20 @@ export class Modal extends Component<IModal> {
     });
   }
   
-  set content(element: HTMLElement) {
-    this.modalContent.replaceChildren(element); 
-  }
+  public get content(): HTMLElement | null {
+    return this.currentContent;
+}
+
+
+  public set content(element: HTMLElement | null) {
+    if (element) {
+        this.modalContent.replaceChildren(element); 
+        this.currentContent = element;
+    } else {
+        this.modalContent.replaceChildren();
+        this.currentContent = null;
+    }
+}
 
   open():void {
     this.modalContainer.classList.add('modal_active')
@@ -44,6 +56,7 @@ export class Modal extends Component<IModal> {
   close():void {
     this.modalContainer.classList.remove('modal_active');
     this.isOpen = false;
+    this.content = null;
   } 
 
   render(data?: Partial<IModal> | undefined): HTMLElement {

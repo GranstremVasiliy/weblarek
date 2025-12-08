@@ -17,11 +17,7 @@ export abstract class Component<T> {
             }
         }
     }
-
-
-    public get returnContainer(): HTMLElement {
-        return this.container;
-    }
+    
     // Вернуть корневой DOM-элемент
     render(data?: Partial<T>): HTMLElement {
         if(data){

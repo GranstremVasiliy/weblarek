@@ -215,11 +215,13 @@ Cлужит прослойкой между прикладной логикой 
 `modalContainer: HTMLElement` — корневой контейнер модального окна.
 `modalContent: HTMLElement` — внутренний блок, куда помещается контент.
 `closeButton: HTMLButtonElement` — кнопка закрытия.
+`protected currentContent: HTMLElement | null`- Ссылка на текущий вставленный контент;
 
 Методы класса:
 `set content(element: HTMLElement)` — вставляет новый элемент в модальное окно.
+`get content(): HTMLElement | null`- возвращает ссылку на текущий HTMLElement, который отображается в модальном окне.
 `open()` — показывает модальное окно.
-`close()` — скрывает его.
+`close()` — скрывает модальное окно, очищает DOM и сбрасывает внутреннюю сылку
 `render(data: Partial<IModal>): HTMLElement` — универсальный метод рендера.
 
 ### Класс OrderSuccess
@@ -288,6 +290,7 @@ Cлужит прослойкой между прикладной логикой 
 `set description(value: string)` - Отображает описание товара.
 `set category(value: string)` - Устанавливает категорию/тип товара.
 `set image(value: string)` - Устанавливает картинку предпросмотра.
+`updateBuyButton(isInCart: boolean, price: number | null | undefined): void` - — обновляет текст и состояние кнопки "Купить"/"Удалить из корзины" в зависимости от наличия товара в корзине (isInCart) и цены;
 `render(data?: Partial<ICardPreview> | undefined): HTMLElement` — универсальный метод рендера.
 
 ### Класс Form

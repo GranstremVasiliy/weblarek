@@ -58,7 +58,6 @@ updateBuyButton(isInCart: boolean, price: number | null | undefined) {
 
   render(data?: Partial<ICardPreview>): HTMLElement {
     super.render(data);
-    if (!data) return this.container;
     return this.container;
   }
   }
